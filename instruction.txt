@@ -1,0 +1,551 @@
+
+# Technical Specification: "ShadowDiff" Comparison Engine
+## Version 2.0 (Expanded)
+
+---
+
+## 1. Executive Summary
+
+**Goal:** A stateless service that takes two JSON payloads (Old vs. New API responses) and an OpenAPI (Swagger) fragment to determine if they are functionally equivalent.
+
+**Core Principle:** "Configuration by Exception" — Use the Swagger spec to handle "noise" (timestamps, UUIDs, sorting) while defaulting to a strict deep-diff for everything else.
+
+### 1.1 Use Cases
+- API version migration validation (v1 → v2)
+- Shadow traffic comparison in production
+- Contract testing in CI/CD pipelines
+- Data migration verification
+
+---
+
+## 2. Core Architecture
+
+### 2.1 Input Contract
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `old_json` | Object \| Array | Yes | The baseline API response (typically from legacy system) |
+| `new_json` | Object \| Array | Yes | The response to validate (typically from new system) |
+| `schema_fragment` | OpenAPI Schema | Yes | Schema with `x-migration-*` extensions. Must be self-contained (all `$ref` resolved or inline) |
+| `config` | EngineConfig | No | Global configuration overrides |
+
+### 2.2 Engine Configuration (EngineConfig)
+
+| Property | Type | Default | Description |
+|----------|------|---------|-------------|
+| `max_depth` | integer | 100 | Maximum recursion depth to prevent stack overflow |
+| `max_payload_size_mb` | float | 50 | Maximum payload size in megabytes |
+| `timeout_seconds` | integer | 30 | Processing timeout for single comparison |
+| `strict_schema_validation` | boolean | true | Fail if payload doesn't match schema structure |
+| `collect_statistics` | boolean | true | Include field coverage stats in report |
+| `log_level` | enum | INFO | DEBUG, INFO, WARN, ERROR |
+| `trace_rule_application` | boolean | false | Include which rules applied to which paths |
+| `fail_fast` | boolean | false | Stop after first mismatch found |
+
+### 2.3 Processing Pipeline
+
+```
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
+│  Stage 1:       │───▶│  Stage 2:       │───▶│  Stage 3:       │───▶│  Stage 4:       │
+│  Schema         │    │  Normalization  │    │  Masking        │    │  Typed Diffing  │
+│  Resolution     │    │  (The "Scrub")  │    │  (The "Filter") │    │  (Deep Compare) │
+└─────────────────┘    └─────────────────┘    └─────────────────┘    └─────────────────┘
+```
+
+---
+
+## 3. OpenAPI Extensions Reference
+
+### 3.1 Field-Level Rules
+
+#### 3.1.1 x-migration-strategy
+| Value | Behavior |
+|-------|----------|
+| `strict` (default) | Values must match exactly after type coercion |
+| `ignore` | Field is stripped from both payloads before comparison |
+| `exists` | Only presence/absence is checked, value ignored |
+| `lenient` | Allow minor differences (whitespace trimmed, case ignored for strings) |
+
+#### 3.1.2 x-migration-alias
+Maps a field name in the Old payload to a different name in the New payload.
+```yaml
+# New schema property name: "customerId"
+customerId:
+  type: string
+  x-migration-alias: "customer_id"  # Old payload uses "customer_id"
+```
+
+#### 3.1.3 x-migration-precision
+For numeric fields, defines acceptable difference threshold:
+```yaml
+amount:
+  type: number
+  x-migration-precision: 0.01  # abs(old - new) <= 0.01
+```
+
+#### 3.1.4 x-migration-case-insensitive
+```yaml
+status:
+  type: string
+  x-migration-case-insensitive: true  # "ACTIVE" == "active"
+```
+
+#### 3.1.5 x-migration-trim-whitespace
+```yaml
+description:
+  type: string
+  x-migration-trim-whitespace: true  # " hello " == "hello"
+```
+
+#### 3.1.6 x-migration-cast
+Force type coercion before comparison:
+| Value | Behavior |
+|-------|----------|
+| `int` | Convert to integer (truncates decimals) |
+| `float` | Convert to floating point |
+| `string` | Convert to string representation |
+| `boolean` | Convert truthy/falsy values to boolean |
+
+#### 3.1.7 x-migration-pattern *(NEW)*
+Validates both values match a regex pattern (rather than matching each other):
+```yaml
+orderNumber:
+  type: string
+  x-migration-pattern: "^ORD-[A-Z]{2}-\\d{6}$"
+```
+
+#### 3.1.8 x-migration-datetime-format *(NEW)*
+Specifies datetime parsing format:
+```yaml
+createdAt:
+  type: string
+  x-migration-datetime-format: "ISO8601"  # or "%Y-%m-%d %H:%M:%S"
+```
+
+#### 3.1.9 x-migration-datetime-tolerance *(NEW)*
+Acceptable time difference:
+```yaml
+timestamp:
+  type: string
+  x-migration-datetime-format: "ISO8601"
+  x-migration-datetime-tolerance: "5s"  # 5s, 1m, 1h, 1d
+```
+
+#### 3.1.10 x-migration-default *(NEW)*
+Value to use when field is missing:
+```yaml
+quantity:
+  type: integer
+  x-migration-default: 0  # missing treated as 0
+```
+
+#### 3.1.11 x-migration-enum-map *(NEW)*
+Maps enum values between Old and New:
+```yaml
+status:
+  type: string
+  x-migration-enum-map:
+    "ACTIVE": "active"
+    "INACTIVE": "inactive"
+    "IN_PROGRESS": "in_progress"
+```
+
+---
+
+### 3.2 Array-Level Rules
+
+#### 3.2.1 x-migration-array-mode
+| Value | Behavior |
+|-------|----------|
+| `strict` (default) | Index-to-index comparison; order matters |
+| `unordered` | Set-based comparison; order ignored, duplicates matter |
+| `keyed` | Objects aligned by primary key field before comparison |
+
+#### 3.2.2 x-migration-array-key
+The field(s) to use as primary key when `array-mode: keyed`:
+```yaml
+lineItems:
+  type: array
+  x-migration-array-mode: keyed
+  x-migration-array-key: "sku"
+  # Or composite key:
+  x-migration-array-key: ["orderId", "lineNumber"]
+```
+
+#### 3.2.3 x-migration-order-by
+Sort arrays before comparison:
+```yaml
+items:
+  type: array
+  x-migration-order-by: ["category", "-createdAt"]  # "-" prefix = descending
+```
+
+#### 3.2.4 x-migration-ignore-extra-items
+Success if New API has additional items:
+```yaml
+results:
+  type: array
+  x-migration-ignore-extra-items: true
+```
+
+#### 3.2.5 x-migration-ignore-missing-items *(NEW)*
+Success if Old API has items not in New:
+```yaml
+results:
+  type: array
+  x-migration-ignore-missing-items: true
+```
+
+#### 3.2.6 x-migration-array-subset *(NEW)*
+Partial match — New must contain Old's items:
+```yaml
+tags:
+  type: array
+  x-migration-array-subset: true
+```
+
+#### 3.2.7 x-migration-duplicate-handling *(NEW)*
+How to handle duplicate keys in keyed mode:
+| Value | Behavior |
+|-------|----------|
+| `error` (default) | Report as DUPLICATE_KEY error |
+| `first` | Use first occurrence |
+| `last` | Use last occurrence |
+| `merge` | Merge duplicate objects (later values win) |
+
+---
+
+### 3.3 Global/Endpoint Rules
+
+#### 3.3.1 x-migration-global-ignores
+JSONPaths to strip from both payloads:
+```yaml
+x-migration-global-ignores:
+  - "$..updatedAt"
+  - "$..metadata.traceId"
+  - "$.headers"
+  - "$..['@odata.context']"
+```
+
+#### 3.3.2 x-migration-allow-null-as-missing
+```yaml
+x-migration-allow-null-as-missing: true  # {"a": null} == {}
+```
+
+#### 3.3.3 x-migration-empty-string-as-null *(NEW)*
+```yaml
+x-migration-empty-string-as-null: true  # {"a": ""} == {"a": null}
+```
+
+#### 3.3.4 x-migration-inherit-rules *(NEW)*
+Child properties inherit parent's rules:
+```yaml
+address:
+  type: object
+  x-migration-strategy: lenient
+  x-migration-inherit-rules: true  # all nested fields inherit "lenient"
+  properties:
+    street:
+      type: string
+    city:
+      type: string
+```
+
+#### 3.3.5 x-migration-when *(NEW — Conditional Rules)*
+Apply rules only when condition is met:
+```yaml
+discount:
+  type: number
+  x-migration-when: "$.status == 'ACTIVE'"
+  x-migration-precision: 0.01  # precision only checked when status is ACTIVE
+```
+
+---
+
+## 4. Comparison Logic Pipeline
+
+### 4.1 Stage 1: Schema Resolution
+- Resolve all `$ref` references within the provided fragment
+- Build a traversal map linking JSON paths to schema nodes
+- Detect circular references (enforce `max_depth`)
+- **Error if external `$ref` found** — fragment must be self-contained
+
+### 4.2 Stage 2: Normalization ("The Scrub")
+Execute in order:
+1. **Global Ignores**: Delete all paths matching `x-migration-global-ignores`
+2. **Alias Resolution**: Rename Old payload keys per `x-migration-alias`
+3. **Default Injection**: Insert `x-migration-default` values for missing fields
+4. **Enum Mapping**: Translate Old values per `x-migration-enum-map`
+5. **Array Sorting**: Sort arrays by `x-migration-order-by`
+6. **Keyed Array Transform**: Convert to `Map<Key, Object>` if `array-mode: keyed`
+
+### 4.3 Stage 3: Masking ("The Filter")
+Recursive traversal:
+- If node has `x-migration-strategy: ignore` → delete from both buffers
+- If `x-migration-inherit-rules: true` → propagate parent rules to children
+
+### 4.4 Stage 4: Typed Diffing
+Perform deep comparison with specialized logic:
+
+**Numeric Comparison:**
+```python
+def compare_numbers(old, new, precision=None):
+    if precision is not None:
+        return abs(float(old) - float(new)) <= precision
+    return old == new
+```
+
+**String Comparison:**
+```python
+def compare_strings(old, new, config):
+    if config.trim_whitespace:
+        old, new = old.strip(), new.strip()
+    if config.case_insensitive:
+        old, new = old.lower(), new.lower()
+    if config.pattern:
+        return bool(re.match(config.pattern, old)) and bool(re.match(config.pattern, new))
+    return old == new
+```
+
+**DateTime Comparison:**
+```python
+def compare_datetime(old, new, fmt, tolerance=None):
+    old_dt = parse(old, fmt)
+    new_dt = parse(new, fmt)
+    if tolerance:
+        return abs((old_dt - new_dt).total_seconds()) <= tolerance.total_seconds()
+    return old_dt == new_dt
+```
+
+---
+
+## 5. Output Schema
+
+### 5.1 DiffReport Structure
+```json
+{
+  "is_match": false,
+  "execution": {
+    "duration_ms": 127,
+    "timestamp": "2025-02-02T10:30:00Z",
+    "engine_version": "2.0.0"
+  },
+  "summary": {
+    "total_fields_checked": 47,
+    "mismatches_found": 2,
+    "warnings_count": 1,
+    "fields_ignored": 5
+  },
+  "diffs": [ /* DiffEntry[] */ ],
+  "warnings": [ /* WarningEntry[] */ ],
+  "coverage": {
+    "fields_in_schema": 52,
+    "fields_in_payload": 47,
+    "unmatched_in_old": ["$.legacyField"],
+    "unmatched_in_new": ["$.newFeatureFlag"]
+  },
+  "trace": [ /* TraceEntry[] — if trace_rule_application=true */ ]
+}
+```
+
+### 5.2 DiffEntry Structure
+```json
+{
+  "path": "$.invoice.lineItems[?(@.sku=='WIDGET-001')].amount",
+  "type": "PRECISION_EXCEEDED",
+  "severity": "ERROR",
+  "old_value": 10.00,
+  "new_value": 10.05,
+  "message": "Value difference (0.05) exceeds precision tolerance (0.01)",
+  "rule_applied": "x-migration-precision: 0.01"
+}
+```
+
+### 5.3 Diff Types
+| Type | Description |
+|------|-------------|
+| `VALUE_MISMATCH` | Values differ (no tolerance configured) |
+| `TYPE_MISMATCH` | Different JSON types (string vs number) |
+| `MISSING_IN_NEW` | Field exists in Old but not New |
+| `EXTRA_IN_NEW` | Field exists in New but not Old |
+| `ARRAY_LENGTH_MISMATCH` | Arrays have different lengths (strict mode) |
+| `ARRAY_ITEM_MISSING` | Expected item not found (keyed/unordered) |
+| `ARRAY_ITEM_EXTRA` | Unexpected item in array |
+| `DUPLICATE_KEY` | Multiple items with same key |
+| `SCHEMA_MISMATCH` | Payload structure doesn't match schema |
+| `PRECISION_EXCEEDED` | Numeric difference exceeds tolerance |
+| `PATTERN_MISMATCH` | String doesn't match required pattern |
+| `DATETIME_EXCEEDED` | Time difference exceeds tolerance |
+
+### 5.4 Severity Levels *(NEW)*
+| Severity | Meaning |
+|----------|---------|
+| `ERROR` | Functional mismatch — comparison fails |
+| `WARNING` | Allowed deviation (e.g., extra items when `ignore-extra-items: true`) |
+| `INFO` | Informational (e.g., field ignored, rule applied) |
+
+---
+
+## 6. Error Handling
+
+### 6.1 Error Categories
+| Category | Behavior | Example |
+|----------|----------|---------|
+| Validation Error | Reject input, return error response | Invalid JSON, malformed schema |
+| Schema Mismatch | Include in diff report, continue | Schema says object, payload is string |
+| Processing Error | Abort, include partial results | Timeout, max depth exceeded |
+| Rule Error | Log warning, fall back to strict | Invalid regex in `x-migration-pattern` |
+
+### 6.2 Error Response
+```json
+{
+  "success": false,
+  "error": {
+    "code": "SCHEMA_PARSE_ERROR",
+    "message": "Failed to parse OpenAPI schema fragment",
+    "details": {
+      "line": 45,
+      "column": 12,
+      "reason": "Unexpected token"
+    }
+  },
+  "partial_result": null
+}
+```
+
+---
+
+## 7. Implementation Guidelines
+
+### 7.1 Recommended Libraries
+| Language | Diff Library | JSONPath | Schema Validation |
+|----------|--------------|----------|-------------------|
+| Python | `deepdiff` | `jsonpath-ng` | `jsonschema` |
+| Node.js | `deep-diff` | `jsonpath-plus` | `ajv` |
+| Java | `java-object-diff` | `jayway jsonpath` | `everit-json-schema` |
+| Go | `go-cmp` | `PaesslerAG/jsonpath` | `xeipuuv/gojsonschema` |
+
+### 7.2 Performance Considerations
+- **Lazy Schema Resolution**: Only resolve `$ref` when path is reached
+- **Early Termination**: Use `fail_fast: true` for quick validation
+- **Streaming**: For arrays >10K items, consider streaming comparison
+- **Caching**: Cache compiled regex patterns and parsed datetime formats
+
+### 7.3 Testing Strategy
+- **Unit Tests**: Each `x-migration` extension in isolation
+- **Integration Tests**: Full pipeline with realistic schemas
+- **Fuzz Testing**: Random payloads against random schemas
+- **Performance Tests**: Payloads at `max_payload_size_mb` limit
+
+---
+
+## 8. Complete Example
+
+### 8.1 Schema
+```yaml
+openapi: 3.0.0
+components:
+  schemas:
+    Invoice:
+      type: object
+      x-migration-global-ignores:
+        - "$..updatedAt"
+        - "$..metadata"
+      x-migration-allow-null-as-missing: true
+      properties:
+        id:
+          type: string
+          x-migration-strategy: strict
+        legacyId:
+          type: string
+          x-migration-alias: "old_invoice_id"
+        total:
+          type: number
+          x-migration-precision: 0.01
+        status:
+          type: string
+          x-migration-enum-map:
+            "PAID": "paid"
+            "PENDING": "pending"
+        createdAt:
+          type: string
+          x-migration-datetime-format: "ISO8601"
+          x-migration-datetime-tolerance: "5s"
+        lineItems:
+          type: array
+          x-migration-array-mode: keyed
+          x-migration-array-key: "sku"
+          x-migration-ignore-extra-items: true
+          items:
+            type: object
+            properties:
+              sku:
+                type: string
+              quantity:
+                type: integer
+              unitPrice:
+                type: number
+                x-migration-precision: 0.001
+```
+
+### 8.2 Sample Output
+```json
+{
+  "is_match": false,
+  "summary": {
+    "total_fields_checked": 23,
+    "mismatches_found": 1,
+    "warnings_count": 1
+  },
+  "diffs": [
+    {
+      "path": "$.lineItems[?(@.sku=='GADGET-X')].quantity",
+      "type": "VALUE_MISMATCH",
+      "severity": "ERROR",
+      "old_value": 5,
+      "new_value": 6,
+      "message": "Values differ: 5 != 6"
+    }
+  ],
+  "warnings": [
+    {
+      "path": "$.lineItems",
+      "type": "EXTRA_IN_NEW",
+      "severity": "WARNING",
+      "message": "New array contains 2 extra items (allowed by x-migration-ignore-extra-items)"
+    }
+  ]
+}
+```
+
+---
+
+## 9. Quick Reference Card
+
+| Extension | Scope | Type | Default |
+|-----------|-------|------|---------|
+| `x-migration-strategy` | Field | `ignore\|exists\|strict\|lenient` | `strict` |
+| `x-migration-alias` | Field | string | — |
+| `x-migration-precision` | Field (numeric) | float | — |
+| `x-migration-case-insensitive` | Field (string) | boolean | `false` |
+| `x-migration-trim-whitespace` | Field (string) | boolean | `false` |
+| `x-migration-cast` | Field | `int\|float\|string\|boolean` | — |
+| `x-migration-pattern` | Field (string) | regex | — |
+| `x-migration-datetime-format` | Field (datetime) | string | `ISO8601` |
+| `x-migration-datetime-tolerance` | Field (datetime) | duration | — |
+| `x-migration-default` | Field | any | — |
+| `x-migration-enum-map` | Field (enum) | object | — |
+| `x-migration-array-mode` | Array | `strict\|unordered\|keyed` | `strict` |
+| `x-migration-array-key` | Array | string \| string[] | — |
+| `x-migration-order-by` | Array | string[] | — |
+| `x-migration-ignore-extra-items` | Array | boolean | `false` |
+| `x-migration-ignore-missing-items` | Array | boolean | `false` |
+| `x-migration-array-subset` | Array | boolean | `false` |
+| `x-migration-duplicate-handling` | Array | `error\|first\|last\|merge` | `error` |
+| `x-migration-global-ignores` | Global | JSONPath[] | — |
+| `x-migration-allow-null-as-missing` | Global | boolean | `false` |
+| `x-migration-empty-string-as-null` | Global | boolean | `false` |
+| `x-migration-inherit-rules` | Global | boolean | `false` |
+| `x-migration-when` | Any | JSONPath condition | — |
+
+---
