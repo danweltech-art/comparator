@@ -1,0 +1,157 @@
+{
+  "name": "Claim with status changes and new entries",
+  "description": "Tests a claim where candidates have status changes and new coverages added",
+  "input": {
+    "claimType": "dental",
+    "provider": {
+      "specialty": "ORTHOPEDICS"
+    }
+  },
+  "before": {
+    "claimId": "CLM-2025-00456",
+    "legacy_claim_reference": "OLD-REF-789",
+    "status": "PENDING_INFO",
+    "totalAmount": 8500.00,
+    "submissionDate": "2025-01-20T14:00:00Z",
+    "auditTrail": [{"user": "admin", "action": "submitted"}],
+    "provider": {
+      "npi": "9876543210",
+      "name": "  Dr. Sarah Johnson  ",
+      "specialty": "ORTHOPEDICS"
+    },
+    "patient": {
+      "member_id": "MBR-123456",
+      "firstName": "John ",
+      "lastName": " Smith",
+      "dateOfBirth": "1990-07-15"
+    },
+    "candidates": [
+      {
+        "internalId": "cand-100",
+        "parentId": null,
+        "label": "Knee Replacement",
+        "confidence": 0.95,
+        "condition": {
+          "type": "PRIMARY",
+          "icd_code": "M17.11",
+          "description": "Primary osteoarthritis right knee"
+        },
+        "coverages": [
+          {"code": "COV-SURGERY", "percentage": 85.00, "max_benefit": 75000},
+          {"code": "COV-REHAB", "percentage": 70.00, "max_benefit": 15000}
+        ]
+      },
+      {
+        "internalId": "cand-101",
+        "parentId": "cand-100",
+        "label": "Physical Therapy",
+        "confidence": 0.88,
+        "condition": {
+          "type": "SECONDARY",
+          "icd_code": "Z96.651",
+          "description": "Post-surgical rehabilitation"
+        },
+        "coverages": [
+          {"code": "COV-REHAB", "percentage": 70.00, "max_benefit": 15000}
+        ]
+      }
+    ],
+    "lineItems": [
+      {
+        "procedure_code": "27447",
+        "description": "Total knee arthroplasty",
+        "quantity": 1,
+        "unit_cost": 7500.00,
+        "total_cost": 7500.00
+      },
+      {
+        "procedure_code": "97110",
+        "description": "Therapeutic exercises",
+        "quantity": 10,
+        "unit_cost": 100.00,
+        "total_cost": 1000.00
+      }
+    ]
+  },
+  "after": {
+    "claimId": "CLM-2025-00456",
+    "legacyClaimRef": "OLD-REF-789",
+    "status": "approved",
+    "totalAmount": 8500.00,
+    "submissionDate": "2025-01-20T14:00:30Z",
+    "provider": {
+      "npi": "9876543210",
+      "name": "dr. sarah johnson",
+      "specialty": "orthopedics"
+    },
+    "patient": {
+      "memberId": "MBR-123456",
+      "firstName": "John",
+      "lastName": "Smith",
+      "dateOfBirth": "1990-07-15"
+    },
+    "candidates": [
+      {
+        "internalId": "new-100",
+        "parentId": null,
+        "label": "Knee Replacement",
+        "confidence": 0.95,
+        "condition": {
+          "type": "primary",
+          "code": "M17.11",
+          "description": "Primary osteoarthritis right knee"
+        },
+        "coverages": [
+          {"code": "COV-SURGERY", "percentage": 85.00, "maxBenefit": 75000},
+          {"code": "COV-REHAB", "percentage": 70.00, "maxBenefit": 15000},
+          {"code": "COV-IMPLANT", "percentage": 90.00, "maxBenefit": 25000}
+        ]
+      },
+      {
+        "internalId": "new-101",
+        "parentId": "new-100",
+        "label": "Physical Therapy",
+        "confidence": 0.88,
+        "condition": {
+          "type": "secondary",
+          "code": "Z96.651",
+          "description": "Post-surgical rehabilitation"
+        },
+        "coverages": [
+          {"code": "COV-REHAB", "percentage": 70.00, "maxBenefit": 15000}
+        ]
+      },
+      {
+        "internalId": "new-102",
+        "parentId": "new-100",
+        "label": "Pain Management",
+        "confidence": 0.82,
+        "condition": {
+          "type": "complication",
+          "code": "G89.18",
+          "description": "Acute post-procedural pain"
+        },
+        "coverages": [
+          {"code": "COV-MEDICATION", "percentage": 80.00, "maxBenefit": 5000}
+        ]
+      }
+    ],
+    "lineItems": [
+      {
+        "procedureCode": "27447",
+        "description": "Total knee arthroplasty",
+        "quantity": 1,
+        "unitCost": 7500.00,
+        "totalCost": 7500.00
+      },
+      {
+        "procedureCode": "97110",
+        "description": "Therapeutic exercises",
+        "quantity": 10,
+        "unitCost": 100.00,
+        "totalCost": 1000.00
+      }
+    ]
+  },
+  "expected_match": false
+}

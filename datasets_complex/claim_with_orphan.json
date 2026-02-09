@@ -1,0 +1,163 @@
+{
+  "name": "Claim with orphan parent and removed entry",
+  "description": "Tests a claim where a candidate references a non-existent parent and an entry is removed",
+  "input": {
+    "claimType": "vision",
+    "provider": {
+      "specialty": "ONCOLOGY"
+    }
+  },
+  "before": {
+    "claimId": "CLM-2025-00789",
+    "legacy_claim_reference": "OLD-REF-321",
+    "status": "IN_REVIEW",
+    "totalAmount": 12000.00,
+    "submissionDate": "2025-01-25T09:15:00Z",
+    "auditTrail": [{"user": "reviewer", "action": "flagged"}],
+    "provider": {
+      "npi": "5555555555",
+      "name": "  Dr. Michael Chen  ",
+      "specialty": "ONCOLOGY"
+    },
+    "patient": {
+      "member_id": "MBR-999888",
+      "firstName": "Emily ",
+      "lastName": " Davis",
+      "dateOfBirth": "1975-11-30"
+    },
+    "candidates": [
+      {
+        "internalId": "cand-200",
+        "parentId": null,
+        "label": "Breast Cancer Screening",
+        "confidence": 0.91,
+        "condition": {
+          "type": "PRIMARY",
+          "icd_code": "Z12.31",
+          "description": "Encounter for screening mammogram"
+        },
+        "coverages": [
+          {"code": "COV-PREVENTIVE", "percentage": 100.00, "max_benefit": 500},
+          {"code": "COV-DIAGNOSTIC", "percentage": 80.00, "max_benefit": 2000}
+        ]
+      },
+      {
+        "internalId": "cand-201",
+        "parentId": "cand-200",
+        "label": "Biopsy Procedure",
+        "confidence": 0.85,
+        "condition": {
+          "type": "SECONDARY",
+          "icd_code": "0HBT3ZX",
+          "description": "Breast tissue biopsy"
+        },
+        "coverages": [
+          {"code": "COV-DIAGNOSTIC", "percentage": 80.00, "max_benefit": 2000}
+        ]
+      },
+      {
+        "internalId": "cand-202",
+        "parentId": "cand-200",
+        "label": "Lab Work Panel",
+        "confidence": 0.79,
+        "condition": {
+          "type": "SECONDARY",
+          "icd_code": "80053",
+          "description": "Comprehensive metabolic panel"
+        },
+        "coverages": [
+          {"code": "COV-LAB", "percentage": 90.00, "max_benefit": 1000}
+        ]
+      }
+    ],
+    "lineItems": [
+      {
+        "procedure_code": "77067",
+        "description": "Screening mammography bilateral",
+        "quantity": 1,
+        "unit_cost": 350.00,
+        "total_cost": 350.00
+      },
+      {
+        "procedure_code": "19083",
+        "description": "Breast biopsy with imaging",
+        "quantity": 1,
+        "unit_cost": 2500.00,
+        "total_cost": 2500.00
+      },
+      {
+        "procedure_code": "80053",
+        "description": "Comprehensive metabolic panel",
+        "quantity": 1,
+        "unit_cost": 150.00,
+        "total_cost": 150.00
+      }
+    ]
+  },
+  "after": {
+    "claimId": "CLM-2025-00789",
+    "legacyClaimRef": "OLD-REF-321",
+    "status": "in_review",
+    "totalAmount": 12000.00,
+    "submissionDate": "2025-01-25T09:15:45Z",
+    "provider": {
+      "npi": "5555555555",
+      "name": "dr. michael chen",
+      "specialty": "oncology"
+    },
+    "patient": {
+      "memberId": "MBR-999888",
+      "firstName": "Emily",
+      "lastName": "Davis",
+      "dateOfBirth": "1975-11-30"
+    },
+    "candidates": [
+      {
+        "internalId": "new-200",
+        "parentId": null,
+        "label": "Breast Cancer Screening",
+        "confidence": 0.91,
+        "condition": {
+          "type": "primary",
+          "code": "Z12.31",
+          "description": "Encounter for screening mammogram"
+        },
+        "coverages": [
+          {"code": "COV-PREVENTIVE", "percentage": 100.00, "maxBenefit": 500},
+          {"code": "COV-DIAGNOSTIC", "percentage": 80.00, "maxBenefit": 2000}
+        ]
+      },
+      {
+        "internalId": "new-201",
+        "parentId": "ORPHAN-999",
+        "label": "Biopsy Procedure",
+        "confidence": 0.85,
+        "condition": {
+          "type": "secondary",
+          "code": "0HBT3ZX",
+          "description": "Breast tissue biopsy"
+        },
+        "coverages": [
+          {"code": "COV-DIAGNOSTIC", "percentage": 80.00, "maxBenefit": 2000}
+        ]
+      }
+    ],
+    "lineItems": [
+      {
+        "procedureCode": "77067",
+        "description": "Screening mammography bilateral",
+        "quantity": 1,
+        "unitCost": 350.00,
+        "totalCost": 350.00
+      },
+      {
+        "procedureCode": "19083",
+        "description": "Breast biopsy with imaging",
+        "quantity": 1,
+        "unitCost": 2500.00,
+        "totalCost": 2500.00
+      }
+    ]
+  },
+  "expected_match": false
+}

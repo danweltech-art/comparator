@@ -1,0 +1,173 @@
+{
+  "timestamp": "2026-02-09T10:27:10.038119Z",
+  "summary": {
+    "total_scenarios": 1,
+    "passed": 1,
+    "failed": 0,
+    "pass_rate": "100.0%"
+  },
+  "breakdown": {
+    "no_changes": [
+      "Complex insurance claim with nested candidates and coverages"
+    ],
+    "with_changes": [],
+    "orphan_parents": [],
+    "entries_removed": [],
+    "entries_added": []
+  },
+  "aggregations": {
+    "status": {
+      "IN_REVIEW": {
+        "count": 1,
+        "datasets": [
+          "Complex insurance claim with nested candidates and coverages"
+        ]
+      }
+    },
+    "candidates[*].label": {
+      "Coronary Artery Disease": {
+        "count": 1,
+        "datasets": [
+          "Complex insurance claim with nested candidates and coverages"
+        ]
+      },
+      "Hypertension": {
+        "count": 1,
+        "datasets": [
+          "Complex insurance claim with nested candidates and coverages"
+        ]
+      },
+      "Type 2 Diabetes": {
+        "count": 1,
+        "datasets": [
+          "Complex insurance claim with nested candidates and coverages"
+        ]
+      }
+    },
+    "candidates[*].condition.type": {
+      "COMPLICATION": {
+        "count": 1,
+        "datasets": [
+          "Complex insurance claim with nested candidates and coverages"
+        ]
+      },
+      "PRIMARY": {
+        "count": 1,
+        "datasets": [
+          "Complex insurance claim with nested candidates and coverages"
+        ]
+      },
+      "SECONDARY": {
+        "count": 1,
+        "datasets": [
+          "Complex insurance claim with nested candidates and coverages"
+        ]
+      }
+    },
+    "candidates[*].coverages[*].code": {
+      "COV-CARDIAC": {
+        "count": 1,
+        "datasets": [
+          "Complex insurance claim with nested candidates and coverages"
+        ]
+      },
+      "COV-CHRONIC": {
+        "count": 1,
+        "datasets": [
+          "Complex insurance claim with nested candidates and coverages"
+        ]
+      },
+      "COV-HOSPITAL": {
+        "count": 1,
+        "datasets": [
+          "Complex insurance claim with nested candidates and coverages"
+        ]
+      },
+      "COV-MEDICATION": {
+        "count": 1,
+        "datasets": [
+          "Complex insurance claim with nested candidates and coverages"
+        ]
+      }
+    }
+  },
+  "scenarios": [
+    {
+      "name": "Complex insurance claim with nested candidates and coverages",
+      "dataset_path": "datasets_complex/complex_claim_test.json",
+      "passed": true,
+      "diff_report": {
+        "is_match": true,
+        "summary": {
+          "total_fields_checked": 57,
+          "mismatches_found": 0,
+          "warnings_count": 0,
+          "fields_ignored": 10
+        },
+        "diffs_count": 0,
+        "diffs": []
+      },
+      "parent_validation": {
+        "is_valid": true,
+        "summary": {
+          "total": 2,
+          "orphans": 0,
+          "changed": 0,
+          "consistent": 2
+        },
+        "orphans": [],
+        "changed": [],
+        "consistent": [
+          {
+            "status": "CONSISTENT",
+            "entity": "Hypertension",
+            "before": "Hypertension -> Coronary Artery Disease",
+            "after": "Hypertension -> Coronary Artery Disease",
+            "message": "Parent relationship consistent"
+          },
+          {
+            "status": "CONSISTENT",
+            "entity": "Type 2 Diabetes",
+            "before": "Type 2 Diabetes -> Coronary Artery Disease",
+            "after": "Type 2 Diabetes -> Coronary Artery Disease",
+            "message": "Parent relationship consistent"
+          }
+        ]
+      },
+      "extracted_data": {
+        "input": {
+          "claimType": "medical",
+          "provider.specialty": "CARDIOLOGY"
+        },
+        "before": {
+          "status": "IN_REVIEW",
+          "candidates.label": [
+            "Coronary Artery Disease",
+            "Hypertension",
+            "Type 2 Diabetes"
+          ],
+          "candidates.condition.type": [
+            "PRIMARY",
+            "SECONDARY",
+            "COMPLICATION"
+          ],
+          "candidates.coverages.code": [
+            "COV-CARDIAC",
+            "COV-HOSPITAL",
+            "COV-CHRONIC",
+            "COV-CHRONIC",
+            "COV-MEDICATION"
+          ]
+        },
+        "after": {
+          "status": "in_review",
+          "candidates.label": [
+            "Coronary Artery Disease",
+            "Hypertension",
+            "Type 2 Diabetes"
+          ]
+        }
+      }
+    }
+  ]
+}

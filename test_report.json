@@ -1,0 +1,836 @@
+{
+  "timestamp": "2026-02-06T10:29:08.814146Z",
+  "summary": {
+    "total_scenarios": 6,
+    "passed": 1,
+    "failed": 5,
+    "pass_rate": "16.7%"
+  },
+  "breakdown": {
+    "no_changes": [
+      "dataset3"
+    ],
+    "with_changes": [
+      "dataset1",
+      "dataset2",
+      "dataset4",
+      "dataset5",
+      "dataset6"
+    ],
+    "orphan_parents": [
+      "dataset4"
+    ],
+    "entries_removed": [
+      "dataset5"
+    ],
+    "entries_added": [
+      "dataset1",
+      "dataset2",
+      "dataset4",
+      "dataset6"
+    ]
+  },
+  "aggregations": {
+    "candidates[*].condition.type": {
+      "AuxiliaryUse": {
+        "count": 4,
+        "datasets": [
+          "dataset1",
+          "dataset2",
+          "dataset4",
+          "dataset5"
+        ]
+      },
+      "StandardZoning": {
+        "count": 6,
+        "datasets": [
+          "dataset1",
+          "dataset2",
+          "dataset3",
+          "dataset4",
+          "dataset5",
+          "dataset6"
+        ]
+      }
+    },
+    "candidates[*].status": {
+      "ACTIVE": {
+        "count": 4,
+        "datasets": [
+          "dataset3",
+          "dataset4",
+          "dataset5",
+          "dataset6"
+        ]
+      },
+      "DRAFT": {
+        "count": 4,
+        "datasets": [
+          "dataset1",
+          "dataset2",
+          "dataset4",
+          "dataset5"
+        ]
+      }
+    }
+  },
+  "scenarios": [
+    {
+      "name": "dataset1",
+      "dataset_path": "shadowdiff/test/dataset1.json",
+      "passed": false,
+      "diff_report": {
+        "is_match": false,
+        "summary": {
+          "total_fields_checked": 16,
+          "mismatches_found": 10,
+          "warnings_count": 0,
+          "fields_ignored": 6
+        },
+        "diffs_count": 10,
+        "diffs": [
+          {
+            "path": "$.candidates[?(@.label=='Unit_A_Main_Hall')].applicability.automaticStatus",
+            "type": "VALUE_MISMATCH",
+            "severity": "ERROR",
+            "old_value": "PENDING",
+            "new_value": "YES",
+            "message": "Values differ: 'PENDING' != 'YES'",
+            "rule_applied": null
+          },
+          {
+            "path": "$.candidates[?(@.label=='Unit_A_Main_Hall')].applicability.manualStatus",
+            "type": "EXTRA_IN_NEW",
+            "severity": "ERROR",
+            "old_value": null,
+            "new_value": "APPROVED",
+            "message": "Extra field in new: manualStatus",
+            "rule_applied": null
+          },
+          {
+            "path": "$.candidates[?(@.label=='Unit_A_Main_Hall')].coverages[0].subCoverages",
+            "type": "ARRAY_LENGTH_MISMATCH",
+            "severity": "ERROR",
+            "old_value": 2,
+            "new_value": 3,
+            "message": "Array length mismatch: 2 vs 3",
+            "rule_applied": null
+          },
+          {
+            "path": "$.candidates[?(@.label=='Unit_A_Main_Hall')].coverages[0].subCoverages[2]",
+            "type": "ARRAY_ITEM_EXTRA",
+            "severity": "ERROR",
+            "old_value": null,
+            "new_value": "RENEWABLE_SOLAR",
+            "message": "Extra item in new array at index 2",
+            "rule_applied": null
+          },
+          {
+            "path": "$.candidates[?(@.label=='Unit_A_Main_Hall')].status",
+            "type": "VALUE_MISMATCH",
+            "severity": "ERROR",
+            "old_value": "DRAFT",
+            "new_value": "ACTIVE",
+            "message": "Values differ: 'DRAFT' != 'ACTIVE'",
+            "rule_applied": null
+          },
+          {
+            "path": "$.candidates[?(@.label=='Unit_A_Main_Hall')].condition.parameters",
+            "type": "ARRAY_LENGTH_MISMATCH",
+            "severity": "ERROR",
+            "old_value": 2,
+            "new_value": 3,
+            "message": "Array length mismatch: 2 vs 3",
+            "rule_applied": null
+          },
+          {
+            "path": "$.candidates[?(@.label=='Unit_A_Main_Hall')].condition.parameters[2]",
+            "type": "ARRAY_ITEM_EXTRA",
+            "severity": "ERROR",
+            "old_value": null,
+            "new_value": "structural.load",
+            "message": "Extra item in new array at index 2",
+            "rule_applied": null
+          },
+          {
+            "path": "$.candidates[?(@.label=='Storage_Closet_A1')].applicability.automaticStatus",
+            "type": "VALUE_MISMATCH",
+            "severity": "ERROR",
+            "old_value": "PENDING",
+            "new_value": "YES",
+            "message": "Values differ: 'PENDING' != 'YES'",
+            "rule_applied": null
+          },
+          {
+            "path": "$.candidates[?(@.label=='Storage_Closet_A1')].applicability.manualStatus",
+            "type": "EXTRA_IN_NEW",
+            "severity": "ERROR",
+            "old_value": null,
+            "new_value": "APPROVED",
+            "message": "Extra field in new: manualStatus",
+            "rule_applied": null
+          },
+          {
+            "path": "$.candidates[?(@.label=='Storage_Closet_A1')].status",
+            "type": "VALUE_MISMATCH",
+            "severity": "ERROR",
+            "old_value": "DRAFT",
+            "new_value": "ACTIVE",
+            "message": "Values differ: 'DRAFT' != 'ACTIVE'",
+            "rule_applied": null
+          }
+        ]
+      },
+      "parent_validation": {
+        "is_valid": true,
+        "summary": {
+          "total": 1,
+          "orphans": 0,
+          "changed": 0,
+          "consistent": 1
+        },
+        "orphans": [],
+        "changed": [],
+        "consistent": [
+          {
+            "status": "CONSISTENT",
+            "entity": [
+              "Storage_Closet_A1",
+              "AuxiliaryUse"
+            ],
+            "before": "('Storage_Closet_A1', 'AuxiliaryUse') -> ('Unit_A_Main_Hall', 'StandardZoning')",
+            "after": "('Storage_Closet_A1', 'AuxiliaryUse') -> ('Unit_A_Main_Hall', 'StandardZoning')",
+            "message": "Parent relationship consistent"
+          }
+        ]
+      },
+      "extracted_data": {
+        "input": {
+          "batch_details.region": "EMEA-WEST",
+          "batch_details.submission_id": "REQ-7782",
+          "entries.title": [
+            "Unit_A_Main_Hall",
+            "Storage_Closet_A1"
+          ]
+        },
+        "before": {
+          "candidates.label": [
+            "Unit_A_Main_Hall",
+            "Storage_Closet_A1"
+          ],
+          "candidates.condition.type": [
+            "StandardZoning",
+            "AuxiliaryUse"
+          ],
+          "candidates.status": [
+            "DRAFT",
+            "DRAFT"
+          ]
+        },
+        "after": {
+          "candidates.label": [
+            "Unit_A_Main_Hall",
+            "Storage_Closet_A1"
+          ],
+          "candidates.status": [
+            "ACTIVE",
+            "ACTIVE"
+          ]
+        }
+      }
+    },
+    {
+      "name": "dataset2",
+      "dataset_path": "shadowdiff/test/dataset2.json",
+      "passed": false,
+      "diff_report": {
+        "is_match": false,
+        "summary": {
+          "total_fields_checked": 25,
+          "mismatches_found": 15,
+          "warnings_count": 0,
+          "fields_ignored": 8
+        },
+        "diffs_count": 15,
+        "diffs": [
+          {
+            "path": "$.candidates[?(@.label=='Kitchen_Area_C1')].applicability.automaticStatus",
+            "type": "VALUE_MISMATCH",
+            "severity": "ERROR",
+            "old_value": "PENDING",
+            "new_value": "YES",
+            "message": "Values differ: 'PENDING' != 'YES'",
+            "rule_applied": null
+          },
+          {
+            "path": "$.candidates[?(@.label=='Kitchen_Area_C1')].applicability.manualStatus",
+            "type": "EXTRA_IN_NEW",
+            "severity": "ERROR",
+            "old_value": null,
+            "new_value": "APPROVED",
+            "message": "Extra field in new: manualStatus",
+            "rule_applied": null
+          },
+          {
+            "path": "$.candidates[?(@.label=='Kitchen_Area_C1')].coverages[0].subCoverages",
+            "type": "ARRAY_LENGTH_MISMATCH",
+            "severity": "ERROR",
+            "old_value": 2,
+            "new_value": 3,
+            "message": "Array length mismatch: 2 vs 3",
+            "rule_applied": null
+          },
+          {
+            "path": "$.candidates[?(@.label=='Kitchen_Area_C1')].coverages[0].subCoverages[2]",
+            "type": "ARRAY_ITEM_EXTRA",
+            "severity": "ERROR",
+            "old_value": null,
+            "new_value": "WATER_HEATER",
+            "message": "Extra item in new array at index 2",
+            "rule_applied": null
+          },
+          {
+            "path": "$.candidates[?(@.label=='Kitchen_Area_C1')].status",
+            "type": "VALUE_MISMATCH",
+            "severity": "ERROR",
+            "old_value": "DRAFT",
+            "new_value": "ACTIVE",
+            "message": "Values differ: 'DRAFT' != 'ACTIVE'",
+            "rule_applied": null
+          },
+          {
+            "path": "$.candidates[?(@.label=='Meeting_Room_D')].applicability.automaticStatus",
+            "type": "VALUE_MISMATCH",
+            "severity": "ERROR",
+            "old_value": "PENDING",
+            "new_value": "NO",
+            "message": "Values differ: 'PENDING' != 'NO'",
+            "rule_applied": null
+          },
+          {
+            "path": "$.candidates[?(@.label=='Meeting_Room_D')].applicability.manualStatus",
+            "type": "EXTRA_IN_NEW",
+            "severity": "ERROR",
+            "old_value": null,
+            "new_value": "REJECTED",
+            "message": "Extra field in new: manualStatus",
+            "rule_applied": null
+          },
+          {
+            "path": "$.candidates[?(@.label=='Meeting_Room_D')].status",
+            "type": "VALUE_MISMATCH",
+            "severity": "ERROR",
+            "old_value": "DRAFT",
+            "new_value": "CANCELLED",
+            "message": "Values differ: 'DRAFT' != 'CANCELLED'",
+            "rule_applied": null
+          },
+          {
+            "path": "$.candidates[?(@.label=='Office_Suite_C')].applicability.automaticStatus",
+            "type": "VALUE_MISMATCH",
+            "severity": "ERROR",
+            "old_value": "PENDING",
+            "new_value": "YES",
+            "message": "Values differ: 'PENDING' != 'YES'",
+            "rule_applied": null
+          },
+          {
+            "path": "$.candidates[?(@.label=='Office_Suite_C')].applicability.manualStatus",
+            "type": "EXTRA_IN_NEW",
+            "severity": "ERROR",
+            "old_value": null,
+            "new_value": "APPROVED",
+            "message": "Extra field in new: manualStatus",
+            "rule_applied": null
+          }
+        ]
+      },
+      "parent_validation": {
+        "is_valid": true,
+        "summary": {
+          "total": 1,
+          "orphans": 0,
+          "changed": 0,
+          "consistent": 1
+        },
+        "orphans": [],
+        "changed": [],
+        "consistent": [
+          {
+            "status": "CONSISTENT",
+            "entity": [
+              "Kitchen_Area_C1",
+              "AuxiliaryUse"
+            ],
+            "before": "('Kitchen_Area_C1', 'AuxiliaryUse') -> ('Office_Suite_C', 'StandardZoning')",
+            "after": "('Kitchen_Area_C1', 'AuxiliaryUse') -> ('Office_Suite_C', 'StandardZoning')",
+            "message": "Parent relationship consistent"
+          }
+        ]
+      },
+      "extracted_data": {
+        "input": {
+          "batch_details.region": "APAC-NORTH",
+          "batch_details.submission_id": "REQ-3341",
+          "entries.title": [
+            "Office_Suite_C",
+            "Kitchen_Area_C1",
+            "Meeting_Room_D"
+          ]
+        },
+        "before": {
+          "candidates.label": [
+            "Office_Suite_C",
+            "Kitchen_Area_C1",
+            "Meeting_Room_D"
+          ],
+          "candidates.condition.type": [
+            "StandardZoning",
+            "AuxiliaryUse",
+            "StandardZoning"
+          ],
+          "candidates.status": [
+            "DRAFT",
+            "DRAFT",
+            "DRAFT"
+          ]
+        },
+        "after": {
+          "candidates.label": [
+            "Office_Suite_C",
+            "Kitchen_Area_C1",
+            "Meeting_Room_D"
+          ],
+          "candidates.status": [
+            "ACTIVE",
+            "ACTIVE",
+            "CANCELLED"
+          ]
+        }
+      }
+    },
+    {
+      "name": "dataset3",
+      "dataset_path": "shadowdiff/test/dataset3.json",
+      "passed": true,
+      "diff_report": {
+        "is_match": true,
+        "summary": {
+          "total_fields_checked": 11,
+          "mismatches_found": 0,
+          "warnings_count": 0,
+          "fields_ignored": 2
+        },
+        "diffs_count": 0,
+        "diffs": []
+      },
+      "parent_validation": {
+        "is_valid": true,
+        "summary": {
+          "total": 0,
+          "orphans": 0,
+          "changed": 0,
+          "consistent": 0
+        },
+        "orphans": [],
+        "changed": [],
+        "consistent": []
+      },
+      "extracted_data": {
+        "input": {
+          "batch_details.region": "NA-CENTRAL",
+          "batch_details.submission_id": "REQ-1199",
+          "entries.title": [
+            "Lobby_Reception"
+          ]
+        },
+        "before": {
+          "candidates.label": [
+            "Lobby_Reception"
+          ],
+          "candidates.condition.type": [
+            "StandardZoning"
+          ],
+          "candidates.status": [
+            "ACTIVE"
+          ]
+        },
+        "after": {
+          "candidates.label": [
+            "Lobby_Reception"
+          ],
+          "candidates.status": [
+            "ACTIVE"
+          ]
+        }
+      }
+    },
+    {
+      "name": "dataset4",
+      "dataset_path": "shadowdiff/test/dataset4.json",
+      "passed": false,
+      "diff_report": {
+        "is_match": false,
+        "summary": {
+          "total_fields_checked": 17,
+          "mismatches_found": 5,
+          "warnings_count": 0,
+          "fields_ignored": 6
+        },
+        "diffs_count": 5,
+        "diffs": [
+          {
+            "path": "$.candidates[?(@.label=='Conference_Room_B')].coverages[0].subCoverages",
+            "type": "ARRAY_LENGTH_MISMATCH",
+            "severity": "ERROR",
+            "old_value": 2,
+            "new_value": 3,
+            "message": "Array length mismatch: 2 vs 3",
+            "rule_applied": null
+          },
+          {
+            "path": "$.candidates[?(@.label=='Conference_Room_B')].coverages[0].subCoverages[2]",
+            "type": "ARRAY_ITEM_EXTRA",
+            "severity": "ERROR",
+            "old_value": null,
+            "new_value": "WHITEBOARD_DIGITAL",
+            "message": "Extra item in new array at index 2",
+            "rule_applied": null
+          },
+          {
+            "path": "$.candidates[?(@.label=='Breakout_Room_B1')].applicability.automaticStatus",
+            "type": "VALUE_MISMATCH",
+            "severity": "ERROR",
+            "old_value": "PENDING",
+            "new_value": "YES",
+            "message": "Values differ: 'PENDING' != 'YES'",
+            "rule_applied": null
+          },
+          {
+            "path": "$.candidates[?(@.label=='Breakout_Room_B1')].applicability.manualStatus",
+            "type": "EXTRA_IN_NEW",
+            "severity": "ERROR",
+            "old_value": null,
+            "new_value": "APPROVED",
+            "message": "Extra field in new: manualStatus",
+            "rule_applied": null
+          },
+          {
+            "path": "$.candidates[?(@.label=='Breakout_Room_B1')].status",
+            "type": "VALUE_MISMATCH",
+            "severity": "ERROR",
+            "old_value": "DRAFT",
+            "new_value": "ACTIVE",
+            "message": "Values differ: 'DRAFT' != 'ACTIVE'",
+            "rule_applied": null
+          }
+        ]
+      },
+      "parent_validation": {
+        "is_valid": false,
+        "summary": {
+          "total": 1,
+          "orphans": 1,
+          "changed": 0,
+          "consistent": 0
+        },
+        "orphans": [
+          {
+            "status": "ORPHAN",
+            "entity": [
+              "Breakout_Room_B1",
+              "AuxiliaryUse"
+            ],
+            "before": "('Breakout_Room_B1', 'AuxiliaryUse') -> ORPHAN(INT-999)",
+            "after": "('Breakout_Room_B1', 'AuxiliaryUse') -> ORPHAN(INT-999)",
+            "message": "Orphan in BEFORE: parentId 'INT-999' not found"
+          }
+        ],
+        "changed": [],
+        "consistent": []
+      },
+      "extracted_data": {
+        "input": {
+          "batch_details.region": "LATAM-SOUTH",
+          "batch_details.submission_id": "REQ-8834",
+          "entries.title": [
+            "Conference_Room_B",
+            "Breakout_Room_B1"
+          ]
+        },
+        "before": {
+          "candidates.label": [
+            "Conference_Room_B",
+            "Breakout_Room_B1"
+          ],
+          "candidates.condition.type": [
+            "StandardZoning",
+            "AuxiliaryUse"
+          ],
+          "candidates.status": [
+            "ACTIVE",
+            "DRAFT"
+          ]
+        },
+        "after": {
+          "candidates.label": [
+            "Conference_Room_B",
+            "Breakout_Room_B1"
+          ],
+          "candidates.status": [
+            "ACTIVE",
+            "ACTIVE"
+          ]
+        }
+      }
+    },
+    {
+      "name": "dataset5",
+      "dataset_path": "shadowdiff/test/dataset5.json",
+      "passed": false,
+      "diff_report": {
+        "is_match": false,
+        "summary": {
+          "total_fields_checked": 21,
+          "mismatches_found": 1,
+          "warnings_count": 0,
+          "fields_ignored": 7
+        },
+        "diffs_count": 1,
+        "diffs": [
+          {
+            "path": "$.candidates[?(@.label=='Server_Closet_X')]",
+            "type": "ARRAY_ITEM_MISSING",
+            "severity": "ERROR",
+            "old_value": {
+              "label": "Server_Closet_X",
+              "amount": 10,
+              "coverages": [],
+              "condition": {
+                "type": "AuxiliaryUse",
+                "parameters": [
+                  "cooling.requirements"
+                ]
+              },
+              "applicability": {
+                "automaticStatus": "PENDING"
+              },
+              "status": "DRAFT"
+            },
+            "new_value": null,
+            "message": "Missing item with key 'Server_Closet_X' in new array",
+            "rule_applied": null
+          }
+        ]
+      },
+      "parent_validation": {
+        "is_valid": true,
+        "summary": {
+          "total": 1,
+          "orphans": 0,
+          "changed": 0,
+          "consistent": 1
+        },
+        "orphans": [],
+        "changed": [],
+        "consistent": [
+          {
+            "status": "CONSISTENT",
+            "entity": [
+              "Private_Bathroom_A1",
+              "AuxiliaryUse"
+            ],
+            "before": "('Private_Bathroom_A1', 'AuxiliaryUse') -> ('Executive_Office_A', 'StandardZoning')",
+            "after": "('Private_Bathroom_A1', 'AuxiliaryUse') -> ('Executive_Office_A', 'StandardZoning')",
+            "message": "Parent relationship consistent"
+          }
+        ]
+      },
+      "extracted_data": {
+        "input": {
+          "batch_details.region": "EMEA-EAST",
+          "batch_details.submission_id": "REQ-5567",
+          "entries.title": [
+            "Executive_Office_A",
+            "Private_Bathroom_A1",
+            "Server_Closet_X"
+          ]
+        },
+        "before": {
+          "candidates.label": [
+            "Executive_Office_A",
+            "Private_Bathroom_A1",
+            "Server_Closet_X"
+          ],
+          "candidates.condition.type": [
+            "StandardZoning",
+            "AuxiliaryUse",
+            "AuxiliaryUse"
+          ],
+          "candidates.status": [
+            "ACTIVE",
+            "ACTIVE",
+            "DRAFT"
+          ]
+        },
+        "after": {
+          "candidates.label": [
+            "Executive_Office_A",
+            "Private_Bathroom_A1"
+          ],
+          "candidates.status": [
+            "ACTIVE",
+            "ACTIVE"
+          ]
+        }
+      }
+    },
+    {
+      "name": "dataset6",
+      "dataset_path": "shadowdiff/test/dataset6.json",
+      "passed": false,
+      "diff_report": {
+        "is_match": false,
+        "summary": {
+          "total_fields_checked": 11,
+          "mismatches_found": 6,
+          "warnings_count": 0,
+          "fields_ignored": 6
+        },
+        "diffs_count": 6,
+        "diffs": [
+          {
+            "path": "$.candidates[?(@.label=='Phone_Booth_E1')]",
+            "type": "ARRAY_ITEM_EXTRA",
+            "severity": "ERROR",
+            "old_value": null,
+            "new_value": {
+              "label": "Phone_Booth_E1",
+              "amount": 4,
+              "coverages": [],
+              "condition": {
+                "type": "AuxiliaryUse",
+                "parameters": [
+                  "soundproofing.check"
+                ]
+              },
+              "applicability": {
+                "automaticStatus": "YES",
+                "manualStatus": "APPROVED"
+              },
+              "status": "ACTIVE"
+            },
+            "message": "Extra item with key 'Phone_Booth_E1' in new array",
+            "rule_applied": null
+          },
+          {
+            "path": "$.candidates[?(@.label=='Phone_Booth_E2')]",
+            "type": "ARRAY_ITEM_EXTRA",
+            "severity": "ERROR",
+            "old_value": null,
+            "new_value": {
+              "label": "Phone_Booth_E2",
+              "amount": 4,
+              "coverages": [],
+              "condition": {
+                "type": "AuxiliaryUse",
+                "parameters": [
+                  "soundproofing.check"
+                ]
+              },
+              "applicability": {
+                "automaticStatus": "YES",
+                "manualStatus": "APPROVED"
+              },
+              "status": "ACTIVE"
+            },
+            "message": "Extra item with key 'Phone_Booth_E2' in new array",
+            "rule_applied": null
+          },
+          {
+            "path": "$.candidates[?(@.label=='Open_Plan_Office_E')].coverages[0].subCoverages",
+            "type": "ARRAY_LENGTH_MISMATCH",
+            "severity": "ERROR",
+            "old_value": 2,
+            "new_value": 3,
+            "message": "Array length mismatch: 2 vs 3",
+            "rule_applied": null
+          },
+          {
+            "path": "$.candidates[?(@.label=='Open_Plan_Office_E')].coverages[0].subCoverages[2]",
+            "type": "ARRAY_ITEM_EXTRA",
+            "severity": "ERROR",
+            "old_value": null,
+            "new_value": "RENEWABLE_SOLAR",
+            "message": "Extra item in new array at index 2",
+            "rule_applied": null
+          },
+          {
+            "path": "$.candidates[?(@.label=='Open_Plan_Office_E')].condition.parameters",
+            "type": "ARRAY_LENGTH_MISMATCH",
+            "severity": "ERROR",
+            "old_value": 2,
+            "new_value": 3,
+            "message": "Array length mismatch: 2 vs 3",
+            "rule_applied": null
+          },
+          {
+            "path": "$.candidates[?(@.label=='Open_Plan_Office_E')].condition.parameters[2]",
+            "type": "ARRAY_ITEM_EXTRA",
+            "severity": "ERROR",
+            "old_value": null,
+            "new_value": "energy.efficiency",
+            "message": "Extra item in new array at index 2",
+            "rule_applied": null
+          }
+        ]
+      },
+      "parent_validation": {
+        "is_valid": true,
+        "summary": {
+          "total": 2,
+          "orphans": 0,
+          "changed": 0,
+          "consistent": 0
+        },
+        "orphans": [],
+        "changed": [],
+        "consistent": []
+      },
+      "extracted_data": {
+        "input": {
+          "batch_details.region": "EMEA-WEST",
+          "batch_details.submission_id": "REQ-9921",
+          "entries.title": [
+            "Open_Plan_Office_E",
+            "Phone_Booth_E1",
+            "Phone_Booth_E2"
+          ]
+        },
+        "before": {
+          "candidates.label": [
+            "Open_Plan_Office_E"
+          ],
+          "candidates.condition.type": [
+            "StandardZoning"
+          ],
+          "candidates.status": [
+            "ACTIVE"
+          ]
+        },
+        "after": {
+          "candidates.label": [
+            "Open_Plan_Office_E",
+            "Phone_Booth_E1",
+            "Phone_Booth_E2"
+          ],
+          "candidates.status": [
+            "ACTIVE",
+            "ACTIVE",
+            "ACTIVE"
+          ]
+        }
+      }
+    }
+  ]
+}
