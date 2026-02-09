@@ -1,0 +1,31 @@
+{
+  "name": "Invoice comparison test",
+  "description": "Tests basic invoice comparison with aliased fields and enum mapping",
+  "before": {
+    "id": "INV-001",
+    "old_invoice_id": "LEGACY-123",
+    "total": 100.00,
+    "status": "PAID",
+    "description": "  Test Invoice  ",
+    "createdAt": "2025-02-02T10:30:00Z",
+    "updatedAt": "2025-02-02T11:00:00Z",
+    "metadata": {"traceId": "abc123"},
+    "lineItems": [
+      {"sku": "WIDGET-001", "quantity": 5, "unitPrice": 10.00},
+      {"sku": "GADGET-002", "quantity": 2, "unitPrice": 25.50}
+    ]
+  },
+  "after": {
+    "id": "INV-001",
+    "legacyId": "LEGACY-123",
+    "total": 100.00,
+    "status": "paid",
+    "description": "test invoice",
+    "createdAt": "2025-02-02T10:30:02Z",
+    "lineItems": [
+      {"sku": "WIDGET-001", "quantity": 5, "unitPrice": 10.00},
+      {"sku": "GADGET-002", "quantity": 2, "unitPrice": 25.50}
+    ]
+  },
+  "expected_match": true
+}

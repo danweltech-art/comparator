@@ -1,0 +1,43 @@
+type: object
+x-migration-global-ignores:
+  - "$..updatedAt"
+  - "$..metadata"
+x-migration-allow-null-as-missing: true
+properties:
+  id:
+    type: string
+    x-migration-strategy: strict
+  legacyId:
+    type: string
+    x-migration-alias: "old_invoice_id"
+  total:
+    type: number
+    x-migration-precision: 0.01
+  status:
+    type: string
+    x-migration-enum-map:
+      PAID: paid
+      PENDING: pending
+  description:
+    type: string
+    x-migration-trim-whitespace: true
+    x-migration-case-insensitive: true
+  createdAt:
+    type: string
+    x-migration-datetime-format: ISO8601
+    x-migration-datetime-tolerance: "5s"
+  lineItems:
+    type: array
+    x-migration-array-mode: keyed
+    x-migration-array-key: sku
+    x-migration-ignore-extra-items: true
+    items:
+      type: object
+      properties:
+        sku:
+          type: string
+        quantity:
+          type: integer
+        unitPrice:
+          type: number
+          x-migration-precision: 0.001

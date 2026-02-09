@@ -1,0 +1,17 @@
+{
+  "summary": {
+    "total": 1,
+    "passed": 1,
+    "failed": 0,
+    "errors": 0
+  },
+  "results": [
+    {
+      "name": "Invoice comparison test",
+      "passed": true,
+      "expected_match": true,
+      "actual_match": true,
+      "error": null
+    }
+  ]
+}

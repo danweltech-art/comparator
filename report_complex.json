@@ -1,0 +1,483 @@
+{
+  "timestamp": "2026-02-09T10:29:27.880935Z",
+  "summary": {
+    "total_scenarios": 3,
+    "passed": 1,
+    "failed": 2,
+    "pass_rate": "33.3%"
+  },
+  "breakdown": {
+    "no_changes": [
+      "Complex insurance claim with nested candidates and coverages"
+    ],
+    "with_changes": [
+      "Claim with status changes and new entries",
+      "Claim with orphan parent and removed entry"
+    ],
+    "orphan_parents": [
+      "Claim with orphan parent and removed entry"
+    ],
+    "entries_removed": [
+      "Claim with orphan parent and removed entry"
+    ],
+    "entries_added": [
+      "Claim with status changes and new entries"
+    ]
+  },
+  "aggregations": {
+    "status": {
+      "IN_REVIEW": {
+        "count": 2,
+        "datasets": [
+          "Claim with orphan parent and removed entry",
+          "Complex insurance claim with nested candidates and coverages"
+        ]
+      },
+      "PENDING_INFO": {
+        "count": 1,
+        "datasets": [
+          "Claim with status changes and new entries"
+        ]
+      }
+    },
+    "candidates[*].label": {
+      "Biopsy Procedure": {
+        "count": 1,
+        "datasets": [
+          "Claim with orphan parent and removed entry"
+        ]
+      },
+      "Breast Cancer Screening": {
+        "count": 1,
+        "datasets": [
+          "Claim with orphan parent and removed entry"
+        ]
+      },
+      "Coronary Artery Disease": {
+        "count": 1,
+        "datasets": [
+          "Complex insurance claim with nested candidates and coverages"
+        ]
+      },
+      "Hypertension": {
+        "count": 1,
+        "datasets": [
+          "Complex insurance claim with nested candidates and coverages"
+        ]
+      },
+      "Knee Replacement": {
+        "count": 1,
+        "datasets": [
+          "Claim with status changes and new entries"
+        ]
+      },
+      "Lab Work Panel": {
+        "count": 1,
+        "datasets": [
+          "Claim with orphan parent and removed entry"
+        ]
+      },
+      "Physical Therapy": {
+        "count": 1,
+        "datasets": [
+          "Claim with status changes and new entries"
+        ]
+      },
+      "Type 2 Diabetes": {
+        "count": 1,
+        "datasets": [
+          "Complex insurance claim with nested candidates and coverages"
+        ]
+      }
+    },
+    "candidates[*].condition.type": {
+      "COMPLICATION": {
+        "count": 1,
+        "datasets": [
+          "Complex insurance claim with nested candidates and coverages"
+        ]
+      },
+      "PRIMARY": {
+        "count": 3,
+        "datasets": [
+          "Claim with status changes and new entries",
+          "Claim with orphan parent and removed entry",
+          "Complex insurance claim with nested candidates and coverages"
+        ]
+      },
+      "SECONDARY": {
+        "count": 3,
+        "datasets": [
+          "Claim with status changes and new entries",
+          "Claim with orphan parent and removed entry",
+          "Complex insurance claim with nested candidates and coverages"
+        ]
+      }
+    },
+    "candidates[*].coverages[*].code": {
+      "COV-CARDIAC": {
+        "count": 1,
+        "datasets": [
+          "Complex insurance claim with nested candidates and coverages"
+        ]
+      },
+      "COV-CHRONIC": {
+        "count": 1,
+        "datasets": [
+          "Complex insurance claim with nested candidates and coverages"
+        ]
+      },
+      "COV-DIAGNOSTIC": {
+        "count": 1,
+        "datasets": [
+          "Claim with orphan parent and removed entry"
+        ]
+      },
+      "COV-HOSPITAL": {
+        "count": 1,
+        "datasets": [
+          "Complex insurance claim with nested candidates and coverages"
+        ]
+      },
+      "COV-LAB": {
+        "count": 1,
+        "datasets": [
+          "Claim with orphan parent and removed entry"
+        ]
+      },
+      "COV-MEDICATION": {
+        "count": 1,
+        "datasets": [
+          "Complex insurance claim with nested candidates and coverages"
+        ]
+      },
+      "COV-PREVENTIVE": {
+        "count": 1,
+        "datasets": [
+          "Claim with orphan parent and removed entry"
+        ]
+      },
+      "COV-REHAB": {
+        "count": 1,
+        "datasets": [
+          "Claim with status changes and new entries"
+        ]
+      },
+      "COV-SURGERY": {
+        "count": 1,
+        "datasets": [
+          "Claim with status changes and new entries"
+        ]
+      }
+    }
+  },
+  "scenarios": [
+    {
+      "name": "Claim with status changes and new entries",
+      "dataset_path": "datasets_complex/claim_with_changes.json",
+      "passed": false,
+      "diff_report": {
+        "is_match": false,
+        "summary": {
+          "total_fields_checked": 41,
+          "mismatches_found": 4,
+          "warnings_count": 0,
+          "fields_ignored": 8
+        },
+        "diffs_count": 4,
+        "diffs": [
+          {
+            "path": "$.status",
+            "type": "VALUE_MISMATCH",
+            "severity": "ERROR",
+            "old_value": "pending_info",
+            "new_value": "approved",
+            "message": "Values differ: 'pending_info' != 'approved'",
+            "rule_applied": null
+          },
+          {
+            "path": "$.candidates[?(@.label=='Knee Replacement')].coverages",
+            "type": "ARRAY_LENGTH_MISMATCH",
+            "severity": "ERROR",
+            "old_value": 2,
+            "new_value": 3,
+            "message": "Array length mismatch: 2 vs 3",
+            "rule_applied": null
+          },
+          {
+            "path": "$.candidates[?(@.label=='Knee Replacement')].coverages[2]",
+            "type": "ARRAY_ITEM_EXTRA",
+            "severity": "ERROR",
+            "old_value": null,
+            "new_value": {
+              "code": "COV-IMPLANT",
+              "percentage": 90.0,
+              "maxBenefit": 25000
+            },
+            "message": "Extra item in new array at index 2",
+            "rule_applied": null
+          },
+          {
+            "path": "$.candidates[?(@.label=='Pain Management')]",
+            "type": "ARRAY_ITEM_EXTRA",
+            "severity": "ERROR",
+            "old_value": null,
+            "new_value": {
+              "label": "Pain Management",
+              "confidence": 0.82,
+              "condition": {
+                "type": "complication",
+                "code": "G89.18",
+                "description": "Acute post-procedural pain"
+              },
+              "coverages": [
+                {
+                  "code": "COV-MEDICATION",
+                  "percentage": 80.0,
+                  "maxBenefit": 5000
+                }
+              ]
+            },
+            "message": "Extra item with key 'Pain Management' in new array",
+            "rule_applied": null
+          }
+        ]
+      },
+      "parent_validation": {
+        "is_valid": true,
+        "summary": {
+          "total": 2,
+          "orphans": 0,
+          "changed": 0,
+          "consistent": 1
+        },
+        "orphans": [],
+        "changed": [],
+        "consistent": [
+          {
+            "status": "CONSISTENT",
+            "entity": "Physical Therapy",
+            "before": "Physical Therapy -> Knee Replacement",
+            "after": "Physical Therapy -> Knee Replacement",
+            "message": "Parent relationship consistent"
+          }
+        ]
+      },
+      "extracted_data": {
+        "input": {
+          "claimType": "dental",
+          "provider.specialty": "ORTHOPEDICS"
+        },
+        "before": {
+          "status": "PENDING_INFO",
+          "candidates.label": [
+            "Knee Replacement",
+            "Physical Therapy"
+          ],
+          "candidates.condition.type": [
+            "PRIMARY",
+            "SECONDARY"
+          ],
+          "candidates.coverages.code": [
+            "COV-SURGERY",
+            "COV-REHAB",
+            "COV-REHAB"
+          ]
+        },
+        "after": {
+          "status": "approved",
+          "candidates.label": [
+            "Knee Replacement",
+            "Physical Therapy",
+            "Pain Management"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Claim with orphan parent and removed entry",
+      "dataset_path": "datasets_complex/claim_with_orphan.json",
+      "passed": false,
+      "diff_report": {
+        "is_match": false,
+        "summary": {
+          "total_fields_checked": 41,
+          "mismatches_found": 2,
+          "warnings_count": 0,
+          "fields_ignored": 8
+        },
+        "diffs_count": 2,
+        "diffs": [
+          {
+            "path": "$.candidates[?(@.label=='Lab Work Panel')]",
+            "type": "ARRAY_ITEM_MISSING",
+            "severity": "ERROR",
+            "old_value": {
+              "label": "Lab Work Panel",
+              "confidence": 0.79,
+              "condition": {
+                "type": "secondary",
+                "code": "80053",
+                "description": "Comprehensive metabolic panel"
+              },
+              "coverages": [
+                {
+                  "code": "COV-LAB",
+                  "percentage": 90.0,
+                  "maxBenefit": 1000
+                }
+              ]
+            },
+            "new_value": null,
+            "message": "Missing item with key 'Lab Work Panel' in new array",
+            "rule_applied": null
+          },
+          {
+            "path": "$.lineItems[?(@.procedureCode=='80053')]",
+            "type": "ARRAY_ITEM_MISSING",
+            "severity": "ERROR",
+            "old_value": {
+              "procedureCode": "80053",
+              "description": "Comprehensive metabolic panel",
+              "quantity": 1,
+              "unitCost": 150.0,
+              "totalCost": 150.0
+            },
+            "new_value": null,
+            "message": "Missing item with key '80053' in new array",
+            "rule_applied": null
+          }
+        ]
+      },
+      "parent_validation": {
+        "is_valid": false,
+        "summary": {
+          "total": 2,
+          "orphans": 1,
+          "changed": 0,
+          "consistent": 0
+        },
+        "orphans": [
+          {
+            "status": "ORPHAN",
+            "entity": "Biopsy Procedure",
+            "before": "Biopsy Procedure -> Breast Cancer Screening",
+            "after": "Biopsy Procedure -> ORPHAN(ORPHAN-999)",
+            "message": "Orphan in AFTER: parentId 'ORPHAN-999' not found"
+          }
+        ],
+        "changed": [],
+        "consistent": []
+      },
+      "extracted_data": {
+        "input": {
+          "claimType": "vision",
+          "provider.specialty": "ONCOLOGY"
+        },
+        "before": {
+          "status": "IN_REVIEW",
+          "candidates.label": [
+            "Breast Cancer Screening",
+            "Biopsy Procedure",
+            "Lab Work Panel"
+          ],
+          "candidates.condition.type": [
+            "PRIMARY",
+            "SECONDARY",
+            "SECONDARY"
+          ],
+          "candidates.coverages.code": [
+            "COV-PREVENTIVE",
+            "COV-DIAGNOSTIC",
+            "COV-DIAGNOSTIC",
+            "COV-LAB"
+          ]
+        },
+        "after": {
+          "status": "in_review",
+          "candidates.label": [
+            "Breast Cancer Screening",
+            "Biopsy Procedure"
+          ]
+        }
+      }
+    },
+    {
+      "name": "Complex insurance claim with nested candidates and coverages",
+      "dataset_path": "datasets_complex/complex_claim_test.json",
+      "passed": true,
+      "diff_report": {
+        "is_match": true,
+        "summary": {
+          "total_fields_checked": 57,
+          "mismatches_found": 0,
+          "warnings_count": 0,
+          "fields_ignored": 10
+        },
+        "diffs_count": 0,
+        "diffs": []
+      },
+      "parent_validation": {
+        "is_valid": true,
+        "summary": {
+          "total": 2,
+          "orphans": 0,
+          "changed": 0,
+          "consistent": 2
+        },
+        "orphans": [],
+        "changed": [],
+        "consistent": [
+          {
+            "status": "CONSISTENT",
+            "entity": "Hypertension",
+            "before": "Hypertension -> Coronary Artery Disease",
+            "after": "Hypertension -> Coronary Artery Disease",
+            "message": "Parent relationship consistent"
+          },
+          {
+            "status": "CONSISTENT",
+            "entity": "Type 2 Diabetes",
+            "before": "Type 2 Diabetes -> Coronary Artery Disease",
+            "after": "Type 2 Diabetes -> Coronary Artery Disease",
+            "message": "Parent relationship consistent"
+          }
+        ]
+      },
+      "extracted_data": {
+        "input": {
+          "claimType": "medical",
+          "provider.specialty": "CARDIOLOGY"
+        },
+        "before": {
+          "status": "IN_REVIEW",
+          "candidates.label": [
+            "Coronary Artery Disease",
+            "Hypertension",
+            "Type 2 Diabetes"
+          ],
+          "candidates.condition.type": [
+            "PRIMARY",
+            "SECONDARY",
+            "COMPLICATION"
+          ],
+          "candidates.coverages.code": [
+            "COV-CARDIAC",
+            "COV-HOSPITAL",
+            "COV-CHRONIC",
+            "COV-CHRONIC",
+            "COV-MEDICATION"
+          ]
+        },
+        "after": {
+          "status": "in_review",
+          "candidates.label": [
+            "Coronary Artery Disease",
+            "Hypertension",
+            "Type 2 Diabetes"
+          ]
+        }
+      }
+    }
+  ]
+}

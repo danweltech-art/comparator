@@ -1,0 +1,166 @@
+type: object
+x-migration-global-ignores:
+  - "$..auditTrail"
+  - "$..internalTimestamp"
+  - "$..correlationId"
+x-migration-allow-null-as-missing: true
+
+# Extraction config for aggregation reporting
+x-migration-extract:
+  input:
+    - "claimType"
+    - "provider.specialty"
+  before:
+    - "status"
+    - "candidates[*].label"
+    - "candidates[*].condition.type"
+    - "candidates[*].coverages[*].code"
+  after:
+    - "status"
+    - "candidates[*].label"
+
+# Parent validation config for hierarchical candidates
+x-migration-parent-config:
+  candidatesPath: "candidates"
+  idField: "internalId"
+  parentField: "parentId"
+  identityKey: "label"
+  duplicateHandling: "warn"
+
+properties:
+  claimId:
+    type: string
+    x-migration-strategy: strict
+
+  legacyClaimRef:
+    type: string
+    x-migration-alias: "legacy_claim_reference"
+
+  status:
+    type: string
+    x-migration-enum-map:
+      SUBMITTED: submitted
+      IN_REVIEW: in_review
+      APPROVED: approved
+      DENIED: denied
+      PENDING_INFO: pending_info
+
+  totalAmount:
+    type: number
+    x-migration-precision: 0.01
+
+  submissionDate:
+    type: string
+    x-migration-datetime-format: ISO8601
+    x-migration-datetime-tolerance: "60s"
+
+  provider:
+    type: object
+    properties:
+      npi:
+        type: string
+        x-migration-strategy: strict
+      name:
+        type: string
+        x-migration-trim-whitespace: true
+        x-migration-case-insensitive: true
+      specialty:
+        type: string
+        x-migration-enum-map:
+          CARDIOLOGY: cardiology
+          ORTHOPEDICS: orthopedics
+          GENERAL: general
+          ONCOLOGY: oncology
+
+  patient:
+    type: object
+    properties:
+      memberId:
+        type: string
+        x-migration-alias: "member_id"
+      firstName:
+        type: string
+        x-migration-trim-whitespace: true
+      lastName:
+        type: string
+        x-migration-trim-whitespace: true
+      dateOfBirth:
+        type: string
+        x-migration-strategy: strict
+
+  candidates:
+    type: array
+    x-migration-array-mode: keyed
+    x-migration-array-key: "label"
+    x-migration-ignore-extra-items: false
+    items:
+      type: object
+      properties:
+        internalId:
+          type: string
+          x-migration-strategy: ignore
+        parentId:
+          type: string
+          x-migration-strategy: ignore
+        label:
+          type: string
+          x-migration-strategy: strict
+        confidence:
+          type: number
+          x-migration-precision: 0.05
+        condition:
+          type: object
+          properties:
+            type:
+              type: string
+              x-migration-enum-map:
+                PRIMARY: primary
+                SECONDARY: secondary
+                COMPLICATION: complication
+            code:
+              type: string
+              x-migration-alias: "icd_code"
+            description:
+              type: string
+              x-migration-trim-whitespace: true
+              x-migration-case-insensitive: true
+        coverages:
+          type: array
+          x-migration-array-mode: keyed
+          x-migration-array-key: "code"
+          items:
+            type: object
+            properties:
+              code:
+                type: string
+              percentage:
+                type: number
+                x-migration-precision: 0.01
+              maxBenefit:
+                type: number
+                x-migration-precision: 1.0
+                x-migration-alias: "max_benefit"
+
+  lineItems:
+    type: array
+    x-migration-array-mode: keyed
+    x-migration-array-key: "procedureCode"
+    items:
+      type: object
+      properties:
+        procedureCode:
+          type: string
+          x-migration-alias: "procedure_code"
+        description:
+          type: string
+          x-migration-trim-whitespace: true
+        quantity:
+          type: integer
+        unitCost:
+          type: number
+          x-migration-precision: 0.01
+          x-migration-alias: "unit_cost"
+        totalCost:
+          type: number
+          x-migration-precision: 0.01
+          x-migration-alias: "total_cost"

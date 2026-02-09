@@ -5,7 +5,8 @@
       "Bash(python example.py:*)",
       "Bash(python -m pytest:*)",
       "Bash(python:*)",
-      "Bash(open:*)"
+      "Bash(open:*)",
+      "Bash(find:*)"
     ]
   }
 }
